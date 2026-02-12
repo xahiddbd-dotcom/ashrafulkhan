@@ -10,7 +10,6 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ content }) => {
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const [isGlowFlashing, setIsGlowFlashing] = useState(false);
-  // Fix: Replaced NodeJS.Timeout with ReturnType<typeof setInterval> to avoid namespace issues in browser environments
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const resetTimer = () => {
@@ -54,8 +53,8 @@ const Hero: React.FC<HeroProps> = ({ content }) => {
       />
 
       {/* Background Blobs for Atmosphere */}
-      <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 -z-10 w-full max-w-lg h-96 bg-blue-600/20 rounded-full blur-[100px] animate-blob transition-all duration-700 ${isGlowFlashing ? 'scale-150 opacity-60' : ''}`}></div>
-      <div className={`absolute top-1/3 left-1/3 -translate-x-1/2 -z-10 w-full max-w-md h-80 bg-purple-600/20 rounded-full blur-[100px] animate-blob animation-delay-2000 transition-all duration-700 ${isGlowFlashing ? 'scale-150 opacity-60' : ''}`}></div>
+      <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 -z-10 w-full max-w-lg h-96 bg-blue-400/10 dark:bg-blue-600/20 rounded-full blur-[100px] animate-blob transition-all duration-700 ${isGlowFlashing ? 'scale-150 opacity-60' : ''}`}></div>
+      <div className={`absolute top-1/3 left-1/3 -translate-x-1/2 -z-10 w-full max-w-md h-80 bg-purple-400/10 dark:bg-purple-600/20 rounded-full blur-[100px] animate-blob animation-delay-2000 transition-all duration-700 ${isGlowFlashing ? 'scale-150 opacity-60' : ''}`}></div>
 
       {/* Image Slideshow Frame (6in x 3.5in ratio) */}
       <div className="mb-14 relative inline-block group">
@@ -63,7 +62,7 @@ const Hero: React.FC<HeroProps> = ({ content }) => {
         {/* Manual Navigation Buttons */}
         <button 
           onClick={prevSlide}
-          className="absolute -left-6 md:-left-16 top-1/2 -translate-y-1/2 z-30 glass w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full border border-white/20 text-white hover:bg-blue-600/40 hover:scale-110 active:scale-95 transition-all group-hover:opacity-100 md:opacity-0"
+          className="absolute -left-6 md:-left-16 top-1/2 -translate-y-1/2 z-30 glass w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full border border-white/20 text-blue-500 dark:text-white hover:bg-blue-600/40 hover:scale-110 active:scale-95 transition-all group-hover:opacity-100 md:opacity-0"
           aria-label="Previous Slide"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -71,7 +70,7 @@ const Hero: React.FC<HeroProps> = ({ content }) => {
 
         <button 
           onClick={nextSlide}
-          className="absolute -right-6 md:-right-16 top-1/2 -translate-y-1/2 z-30 glass w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full border border-white/20 text-white hover:bg-blue-600/40 hover:scale-110 active:scale-95 transition-all group-hover:opacity-100 md:opacity-0"
+          className="absolute -right-6 md:-right-16 top-1/2 -translate-y-1/2 z-30 glass w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full border border-white/20 text-blue-500 dark:text-white hover:bg-blue-600/40 hover:scale-110 active:scale-95 transition-all group-hover:opacity-100 md:opacity-0"
           aria-label="Next Slide"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
@@ -93,7 +92,6 @@ const Hero: React.FC<HeroProps> = ({ content }) => {
                   />
               ))}
               
-              {/* Internal Glass Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
           </div>
         </div>
@@ -104,29 +102,26 @@ const Hero: React.FC<HeroProps> = ({ content }) => {
                 <button 
                     key={index} 
                     onClick={() => { setCurrentImgIndex(index); triggerGlow(); resetTimer(); }}
-                    className={`h-1 rounded-full transition-all duration-700 ${index === currentImgIndex ? 'w-8 bg-blue-500 shadow-[0_0_10px_#3b82f6]' : 'w-2 bg-white/20 hover:bg-white/40'}`}
+                    className={`h-1 rounded-full transition-all duration-700 ${index === currentImgIndex ? 'w-8 bg-blue-500 shadow-[0_0_10px_#3b82f6]' : 'w-2 bg-blue-500/20 dark:bg-white/20 hover:bg-blue-500/40 dark:hover:bg-white/40'}`}
                     aria-label={`Go to slide ${index + 1}`}
                 ></button>
             ))}
         </div>
       </div>
       
-      {/* Main Title with Gradient Text */}
       <h1 className="text-5xl md:text-8xl font-black mb-6 leading-tight tracking-tight text-gradient transition-all duration-700">
         {content.title}
       </h1>
       
-      {/* Description Text */}
-      <p className="text-lg md:text-2xl text-gray-400 mb-10 max-w-3xl mx-auto leading-relaxed font-light">
+      <p className="text-lg md:text-2xl text-slate-500 dark:text-gray-400 mb-10 max-w-3xl mx-auto leading-relaxed font-light">
         {content.desc}
       </p>
 
-      {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
         <button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-full font-bold transition-all shadow-xl hover:shadow-blue-500/20 active:scale-95">
           {content.work}
         </button>
-        <button className="w-full sm:w-auto glass hover:bg-white/10 px-10 py-4 rounded-full font-bold transition-all border border-white/20 active:scale-95">
+        <button className="w-full sm:w-auto glass hover:bg-black/5 dark:hover:bg-white/10 px-10 py-4 rounded-full font-bold transition-all border border-blue-500/20 dark:border-white/20 active:scale-95">
           {content.contact}
         </button>
       </div>

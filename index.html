@@ -7,17 +7,43 @@
     <title>ASHRAFUL KHAN | Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Hind+Siliguri:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        // Check for saved theme or system preference
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     <style>
+        :root {
+            --bg-color: #f8fafc;
+            --text-color: #0f172a;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark {
+            --bg-color: #020617;
+            --text-color: #f1f5f9;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
         body {
             font-family: 'Inter', 'Hind Siliguri', sans-serif;
             scroll-behavior: smooth;
-            background: #020617;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
+
         .glass {
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--glass-bg);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
         }
+
         .bg-video {
             position: fixed;
             right: 0;
@@ -27,21 +53,33 @@
             z-index: -2;
             object-fit: cover;
             filter: brightness(0.3) saturate(1.2);
+            transition: opacity 0.5s ease;
         }
+
+        .light .bg-video {
+            opacity: 0;
+            pointer-events: none;
+        }
+
         .video-overlay {
             position: fixed;
             inset: 0;
             background: radial-gradient(circle at center, transparent 0%, rgba(2, 6, 23, 0.8) 100%);
             z-index: -1;
             pointer-events: none;
+            transition: opacity 0.5s ease;
         }
+
+        .light .video-overlay {
+            background: radial-gradient(circle at center, transparent 0%, rgba(248, 250, 252, 0.9) 100%);
+        }
+
         .text-gradient {
-            background: linear-gradient(to right, #fff, #94a3b8);
+            background: linear-gradient(to right, var(--text-color), #94a3b8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         
-        /* Moving Glow Border Animation */
         @keyframes rotate-glow {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -49,7 +87,7 @@
 
         .glow-frame-container {
             position: relative;
-            padding: 4px; /* Border thickness */
+            padding: 4px;
             border-radius: 1.5rem;
             overflow: hidden;
             display: inline-block;
@@ -78,7 +116,7 @@
         .glow-frame-inner {
             position: relative;
             z-index: 10;
-            background: #020617;
+            background: var(--bg-color);
             border-radius: 1.3rem;
             overflow: hidden;
             width: 100%;
@@ -101,17 +139,20 @@
     "react": "https://esm.sh/react@^19.2.4",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "react/": "https://esm.sh/react@^19.2.4/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.41.0"
+    "@google/genai": "https://esm.sh/@google/genai@^1.41.0",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.4"
   }
 }
 </script>
 </head>
-<body class="min-h-screen text-gray-200 overflow-x-hidden">
-    <!-- Cartoon/Anime Background Video -->
+<body class="min-h-screen overflow-x-hidden">
+    <!-- Cartoon/Anime Background Video (only visible in Dark mode) -->
     <video autoplay muted loop playsinline class="bg-video">
         <source src="https://assets.mixkit.co/videos/preview/mixkit-starry-night-sky-over-a-mountain-landscape-40432-large.mp4" type="video/mp4">
     </video>
     <div class="video-overlay"></div>
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>
