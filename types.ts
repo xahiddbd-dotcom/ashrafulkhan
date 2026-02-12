@@ -23,27 +23,31 @@ export interface Content {
   placeholder: string;
   generateBtn: string;
   loading: string;
-  // Personal Story Fields
   lifeStoryTitle: string;
-  rootsTitle: string;
-  rootsContent: string;
-  childhoodTitle: string;
-  childhoodContent: string;
-  educationTitle: string;
-  educationContent: string;
-  hobbiesTitle: string;
-  hobbiesContent: string;
-  friendsTitle: string;
-  friendsContent: string;
-  areaTitle: string;
-  areaContent: string;
-  // Social & Footer
   socialTitle: string;
 }
 
 export interface Project {
-  id: number;
+  id: string;
   title: string;
   tags: string[];
   image: string;
+}
+
+export interface Story {
+  id: string;
+  title: string;
+  desc: string;
+  image: string;
+  icon: string;
+  details: string;
+}
+
+export interface SocialHighlight {
+  id: string;
+  type: 'image' | 'video';
+  url: string;
+  thumbnail: string;
+  caption: string;
+  timestamp: string;
 }

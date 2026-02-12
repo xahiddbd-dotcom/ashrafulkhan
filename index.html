@@ -1,20 +1,36 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASHRAFUL KHAN | Portfolio</title>
+    <title>ASHRAFUL KHAN | Professional Portfolio</title>
+    <meta name="description" content="Professional portfolio of Ashraful Khan, a Developer from Farmgate, Dhaka. Built with React and Gemini AI.">
+    
+    <!-- Favicon placeholder -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Hind+Siliguri:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <script>
-        // Check for saved theme or system preference
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
+        // Critical path theme check to prevent flash of unstyled content
+        (function() {
+            try {
+                const theme = localStorage.getItem('theme');
+                const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (theme === 'dark' || (!theme && supportDarkMode)) {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.style.backgroundColor = '#020617';
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.classList.add('light');
+                    document.documentElement.style.backgroundColor = '#f8fafc';
+                }
+            } catch (e) {}
+        })();
     </script>
+    
     <style>
         :root {
             --bg-color: #f8fafc;
@@ -75,7 +91,7 @@
         }
 
         .text-gradient {
-            background: linear-gradient(to right, var(--text-color), #94a3b8);
+            background: linear-gradient(to right, var(--text-color), #3b82f6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -153,6 +169,7 @@
     </video>
     <div class="video-overlay"></div>
     <div id="root"></div>
+    <!-- Script entry point -->
     <script type="module" src="/index.tsx"></script>
 </body>
 </html>

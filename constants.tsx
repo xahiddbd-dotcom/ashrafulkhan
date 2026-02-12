@@ -1,5 +1,5 @@
 
-import { Content, Language, Project, SocialLink } from './types';
+import { Content, Language, Project, SocialLink, Story, SocialHighlight } from './types';
 
 export const TRANSLATIONS: Record<Language, Content> = {
   en: {
@@ -18,18 +18,6 @@ export const TRANSLATIONS: Record<Language, Content> = {
     generateBtn: "Magic Rewrite",
     loading: "Thinking...",
     lifeStoryTitle: "My Personal Journey",
-    rootsTitle: "Farmgate, Dhaka: The Birthplace",
-    rootsContent: "This is where my world began. Amidst the vibrant chaos and the endless energy of Farmgate, I found my first inspiration to create. It's more than a location; it's the rhythm of my ambition.",
-    childhoodTitle: "Golden Childhood",
-    childhoodContent: "Climbing trees and chasing rain - my childhood was an adventure that sparked my imagination.",
-    educationTitle: "The Learning Era",
-    educationContent: "Academic life was a bridge between my curiosity and my professional calling in technology.",
-    hobbiesTitle: "Sports & Passion",
-    hobbiesContent: "The football field is where I recharge. It taught me teamwork, strategy, and resilience.",
-    friendsTitle: "The Tribe",
-    friendsContent: "My friends are my second family. We've grown from dreamers to achievers together.",
-    areaTitle: "Local Life",
-    areaContent: "My current neighborhood is a blend of bustling markets and quiet libraries.",
     socialTitle: "Connect With Me"
   },
   bn: {
@@ -48,26 +36,44 @@ export const TRANSLATIONS: Record<Language, Content> = {
     generateBtn: "ম্যাজিক রিরাইট",
     loading: "ভাবছি...",
     lifeStoryTitle: "আমার ব্যক্তিগত গল্প",
-    rootsTitle: "ফার্মগেট, ঢাকা: আমার শেকড়",
-    rootsContent: "এখান থেকেই আমার পৃথিবীর শুরু। ফার্মগেটের সেই প্রাণবন্ত কোলাহল আর অন্তহীন শক্তির মাঝেই আমি খুঁজে পেয়েছিলাম আমার সৃষ্টির প্রথম অনুপ্রেরণা। এটি কেবল একটি স্থান নয়, এটি আমার স্বপ্নের স্পন্দন।",
-    childhoodTitle: "সোনালী শৈশব",
-    childhoodContent: "গাছে ওঠা আর বৃষ্টির পেছনে ছোটা - আমার শৈশব ছিল এক অ্যাডভেঞ্চার যা আমার কল্পনাশক্তি বাড়িয়ে দিয়েছিল।",
-    educationTitle: "শিক্ষা জীবন",
-    educationContent: "শিক্ষা জীবন ছিল আমার কৌতূহল এবং প্রযুক্তির প্রতি ভালোবাসার মধ্যকার এক সেতুবন্ধন।",
-    hobbiesTitle: "খেলাধুলা ও আবেগ",
-    hobbiesContent: "ফুটবল মাঠ আমার শক্তি সঞ্চয়ের জায়গা। এটি আমাকে দলগত কাজ এবং ধৈর্য শিখিয়েছে।",
-    friendsTitle: "বন্ধুত্বের বন্ধন",
-    friendsContent: "আমার বন্ধুরা আমার দ্বিতীয় পরিবার। আমরা একসাথে স্বপ্ন দেখা থেকে স্বপ্ন ছোঁয়া শিখেছি।",
-    areaTitle: "আমার এলাকা",
-    areaContent: "আমার বর্তমান এলাকাটি ব্যক্ত বাজার আর শান্ত লাইব্রেরির এক অপূর্ব সংমিশ্রণ।",
     socialTitle: "যোগাযোগ করুন"
   }
 };
 
 export const PROJECTS: Project[] = [
-  { id: 1, title: "Fintech Dashboard", tags: ["React", "D3.js"], image: "https://images.unsplash.com/photo-1551288049-bbda48642153?auto=format&fit=crop&q=80&w=800" },
-  { id: 2, title: "E-Commerce Suite", tags: ["Next.js", "Stripe"], image: "https://images.unsplash.com/photo-1557821552-17105176677c?auto=format&fit=crop&q=80&w=800" },
-  { id: 3, title: "AI Image Generator", tags: ["Gemini", "Tailwind"], image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800" },
+  { id: '1', title: "Fintech Dashboard", tags: ["React", "D3.js"], image: "https://images.unsplash.com/photo-1551288049-bbda48642153?auto=format&fit=crop&q=80&w=800" },
+  { id: '2', title: "E-Commerce Suite", tags: ["Next.js", "Stripe"], image: "https://images.unsplash.com/photo-1557821552-17105176677c?auto=format&fit=crop&q=80&w=800" },
+  { id: '3', title: "AI Image Generator", tags: ["Gemini", "Tailwind"], image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800" },
+];
+
+export const INITIAL_STORIES: Story[] = [
+  { 
+    id: '0',
+    title: "Farmgate, Dhaka: The Birthplace", 
+    desc: "This is where my world began. Amidst the vibrant chaos and the endless energy of Farmgate, I found my first inspiration to create.", 
+    image: "https://images.unsplash.com/photo-1621259500051-7871e4113303?auto=format&fit=crop&q=80&w=1000",
+    icon: '🏠',
+    details: "It's more than a location; it's the rhythm of my ambition."
+  }
+];
+
+export const INITIAL_HIGHLIGHTS: SocialHighlight[] = [
+  {
+    id: 'h1',
+    type: 'image',
+    url: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800',
+    thumbnail: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=200',
+    caption: 'Coding late at night... 💻',
+    timestamp: '2h ago'
+  },
+  {
+    id: 'h2',
+    type: 'video',
+    url: 'https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-screen-close-up-1728-large.mp4',
+    thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=200',
+    caption: 'New feature preview! 🚀',
+    timestamp: '5h ago'
+  }
 ];
 
 export const SOCIAL_LINKS: SocialLink[] = [
@@ -78,8 +84,5 @@ export const SOCIAL_LINKS: SocialLink[] = [
 
 export const HERO_IMAGES = [
   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600",
-  "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=600",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=600",
-  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=600",
-  "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=600"
+  "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=600"
 ];

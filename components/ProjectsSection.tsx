@@ -1,13 +1,13 @@
 
 import React from 'react';
 import { Content, Project } from '../types';
-import { PROJECTS } from '../constants';
 
 interface ProjectsSectionProps {
   content: Content;
+  projects: Project[];
 }
 
-const ProjectsSection: React.FC<ProjectsSectionProps> = ({ content }) => {
+const ProjectsSection: React.FC<ProjectsSectionProps> = ({ content, projects }) => {
   return (
     <section className="max-w-7xl mx-auto px-6 py-20">
       <div className="flex justify-between items-end mb-12">
@@ -18,7 +18,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ content }) => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {PROJECTS.map((project) => (
+        {projects.map((project) => (
           <div key={project.id} className="group relative glass rounded-[2rem] overflow-hidden border border-white/10 hover:border-blue-500/30 transition-all duration-500">
             <div className="aspect-[4/3] overflow-hidden">
               <img 
