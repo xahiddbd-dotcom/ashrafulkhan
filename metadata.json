@@ -1,0 +1,8 @@
+{
+  "name": "Ashraful.dhaka",
+  "description": "A high-performance professional portfolio with multi-language support and AI-driven content personalization using Gemini.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
