@@ -56,13 +56,39 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
     }
   };
 
-  // Initialize HLS for Live Stream
-  useEffect(() => {
-    if (isLiveViewerOpen && content.broadcastSource === 'external' && content.streamUrl && liveVideoRef.current) {
-      const video = liveVideoRef.current;
-      const hlsUrl = content.streamUrl;
+  const getStreamType = (url: string) => {
+    if (!url) return 'none';
+    if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
+    if (url.includes('facebook.com') || url.includes('fb.watch')) return 'facebook';
+    if (url.includes('.m3u8')) return 'hls';
+    return 'direct';
+  };
 
-      // Check if HLS.js is supported
+  const getEmbedUrl = (url: string) => {
+    if (url.includes('youtube.com/watch?v=')) {
+      const id = url.split('v=')[1]?.split('&')[0];
+      return `https://www.youtube.com/embed/${id}?autoplay=1&mute=1`;
+    }
+    if (url.includes('youtu.be/')) {
+      const id = url.split('youtu.be/')[1]?.split('?')[0];
+      return `https://www.youtube.com/embed/${id}?autoplay=1&mute=1`;
+    }
+    if (url.includes('youtube.com/live/')) {
+      const id = url.split('live/')[1]?.split('?')[0];
+      return `https://www.youtube.com/embed/${id}?autoplay=1&mute=1`;
+    }
+    if (url.includes('facebook.com')) {
+      return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1`;
+    }
+    return url;
+  };
+
+  useEffect(() => {
+    const streamType = getStreamType(content.streamUrl || '');
+    if (isLiveViewerOpen && content.broadcastSource === 'external' && streamType === 'hls' && liveVideoRef.current) {
+      const video = liveVideoRef.current;
+      const hlsUrl = content.streamUrl!;
+
       if ((window as any).Hls && (window as any).Hls.isSupported()) {
         const hls = new (window as any).Hls();
         hls.loadSource(hlsUrl);
@@ -71,9 +97,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
           video.play().catch(e => console.error("Autoplay prevented:", e));
         });
         return () => hls.destroy();
-      } 
-      // Fallback for Safari (native HLS support)
-      else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = hlsUrl;
         video.addEventListener('loadedmetadata', () => {
           video.play().catch(e => console.error("Autoplay prevented:", e));
@@ -82,28 +106,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
     }
   }, [isLiveViewerOpen, content.broadcastSource, content.streamUrl]);
 
-  useEffect(() => {
-    let timer: ReturnType<typeof setInterval>;
-    if (activeStory && !isPaused) {
-      timer = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 100) {
-            handleNext();
-            return 100;
-          }
-          return prev + 1;
-        });
-      }, 300);
-    }
-    return () => clearInterval(timer);
-  }, [activeStory, isPaused, highlights]);
-
-  useEffect(() => {
-    if (activeStory) {
-      setProgress(0);
-      setIsPaused(false);
-    }
-  }, [activeStory?.id]);
+  const streamType = getStreamType(content.streamUrl || '');
 
   return (
     <>
@@ -135,11 +138,8 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center px-4 md:px-8 py-2 bg-slate-950/70 backdrop-blur-2xl border-b border-white/5">
         <div className="flex items-center gap-4 shrink-0 mr-6">
           <div className="flex flex-col">
-            <div className="flex items-center gap-2 cursor-pointer uppercase shrink-0 overflow-visible py-1">
-              <span className="text-xl md:text-2xl font-black tracking-tighter animate-brand-3d">
-                {content.brandName}
-              </span>
-              
+            <div className="flex items-center gap-3 cursor-pointer uppercase shrink-0 overflow-visible py-1">
+              {/* LIVE button moved to the LEFT */}
               {content.isBroadcasting && (
                 <button 
                   onClick={() => setIsLiveViewerOpen(true)}
@@ -149,7 +149,12 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
                   <span className="text-[9px] font-black text-white uppercase tracking-tighter">LIVE</span>
                 </button>
               )}
+
+              <span className="text-xl md:text-2xl font-black tracking-tighter animate-brand-3d">
+                {content.brandName}
+              </span>
             </div>
+            
             <div className="flex items-center gap-1.5 mt-[-2px]">
               <div className={`w-2 h-2 rounded-full relative ${content.isOnline ? 'bg-green-500' : 'bg-red-500'}`}>
                 {content.isOnline && (
@@ -229,20 +234,31 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
                  
                  <div className="w-full h-full flex flex-col items-center justify-center text-center">
                     {content.isBroadcasting && content.broadcastSource === 'external' && content.streamUrl ? (
-                      <video 
-                        ref={liveVideoRef}
-                        controls 
-                        autoPlay 
-                        muted
-                        playsInline
-                        className="w-full h-full object-contain"
-                        poster="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=800"
-                      />
+                      <>
+                        {(streamType === 'youtube' || streamType === 'facebook') ? (
+                          <iframe 
+                            src={getEmbedUrl(content.streamUrl)}
+                            className="w-full h-full border-none"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                          ></iframe>
+                        ) : (
+                          <video 
+                            ref={liveVideoRef}
+                            controls 
+                            autoPlay 
+                            muted
+                            playsInline
+                            className="w-full h-full object-contain"
+                            poster="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=800"
+                          />
+                        )}
+                      </>
                     ) : (
                       <div className="p-10">
                         <svg className="w-20 h-20 text-blue-500/50 mb-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                         <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">Signal Pending</h3>
-                        <p className="text-gray-500 max-w-xs text-sm">Ashraful is initializing the stream. Stay tuned.</p>
+                        <p className="text-gray-500 max-w-xs text-sm">Waiting for broadcaster to connect the signal...</p>
                       </div>
                     )}
                  </div>
@@ -255,13 +271,15 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
                     </div>
                     <div>
                       <h4 className="text-white font-bold text-sm tracking-tight">{content.brandName}</h4>
-                      <p className="text-blue-400 text-[10px] font-black uppercase tracking-widest">{content.broadcastSource === 'external' ? 'OBS HD STREAM' : 'WEBCAM'}</p>
+                      <p className="text-blue-400 text-[10px] font-black uppercase tracking-widest">
+                        {streamType === 'youtube' ? 'YOUTUBE LIVE' : streamType === 'facebook' ? 'FACEBOOK LIVE' : 'OBS STREAM'}
+                      </p>
                     </div>
                  </div>
                  
                  <div className="flex-1 space-y-4">
                     <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                       <p className="text-gray-400 text-xs font-medium italic">"Welcome to the workshop! Ask your questions below."</p>
+                       <p className="text-gray-400 text-xs font-medium italic">"Welcome to the workshop! Feel free to ask questions in the chat."</p>
                     </div>
                     <div className="flex items-center justify-between text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">
                        <span>Quality</span>
@@ -284,7 +302,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
               {isPaused ? (
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" /></svg>
               ) : (
-                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" /></svg>
+                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1-1v4a1 1 0 102 0V8a1 1 0 00-1-1z" /></svg>
               )}
             </button>
             <button onClick={() => setActiveStory(null)} className="text-white/50 hover:text-white p-3 hover:bg-white/10 rounded-full">
