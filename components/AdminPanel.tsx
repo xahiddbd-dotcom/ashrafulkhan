@@ -183,8 +183,20 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                {currentContent.broadcastSource !== 'external' ? (
                  <div className="text-center">
                     <p className="text-gray-400 mb-6 text-sm">Quick broadcast using your device's built-in camera.</p>
-                    <div className="relative aspect-video max-w-xl mx-auto rounded-3xl overflow-hidden bg-black border border-white/10 mb-8">
-                       <video ref={videoPreviewRef} autoPlay muted playsInline className="w-full h-full object-cover" />
+                    <div className="relative aspect-video max-w-xl mx-auto rounded-3xl overflow-hidden bg-black border border-white/10 mb-8 group">
+                       <video 
+                         ref={videoPreviewRef} 
+                         autoPlay 
+                         muted 
+                         playsInline 
+                         controls // Full controls for Admin to test audio/video
+                         className="w-full h-full object-cover" 
+                       />
+                       {!currentContent.isBroadcasting && (
+                         <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm pointer-events-none">
+                           <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Preview Offline</p>
+                         </div>
+                       )}
                     </div>
                     <button onClick={currentContent.isBroadcasting ? stopBroadcast : startBrowserBroadcast} className={`px-8 py-3 rounded-2xl font-black flex items-center gap-2 mx-auto ${currentContent.isBroadcasting ? 'bg-white text-black' : 'bg-blue-600'}`}>
                        {currentContent.isBroadcasting ? 'STOP FEED' : 'START CAM'}
@@ -209,12 +221,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                              />
                           </div>
                           <div className="p-4 rounded-2xl bg-blue-600/5 border border-blue-500/10">
-                             <h4 className="text-[10px] font-bold uppercase mb-2 text-blue-400">Supported Formats:</h4>
-                             <ul className="text-[10px] text-gray-500 space-y-1 list-disc pl-3 leading-relaxed">
-                                <li>YouTube Live/Video Links</li>
-                                <li>Facebook Video Links</li>
-                                <li>HLS (.m3u8) Playback URLs</li>
-                             </ul>
+                             <h4 className="text-[10px] font-bold uppercase mb-2 text-blue-400">Broadcaster Note:</h4>
+                             <p className="text-[10px] text-gray-500 leading-relaxed">
+                               Visitors will see the stream with <strong>only a Mute/Unmute button</strong>. Play, Pause, and Seeking controls are disabled for them to ensure they follow the live broadcast as intended.
+                             </p>
                           </div>
                        </div>
                        
@@ -237,7 +247,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
           </div>
         )}
 
-        {/* ... (rest of the content tab remains same) ... */}
         {activeTab === 'content' && (
           <div className="space-y-8 animate-in fade-in">
             <div className="flex justify-between items-center bg-white/5 p-6 rounded-[2rem] border border-white/10">
@@ -275,8 +284,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
             </div>
           </div>
         )}
-        
-        {/* ... rest of the tabs ... */}
       </main>
     </div>
   );

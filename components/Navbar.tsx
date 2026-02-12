@@ -15,6 +15,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
   const [isLiveViewerOpen, setIsLiveViewerOpen] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const liveVideoRef = useRef<HTMLVideoElement>(null);
 
@@ -65,20 +66,21 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
   };
 
   const getEmbedUrl = (url: string) => {
+    // Adding controls=0 and disabling keyboard to restrict visitor interaction
     if (url.includes('youtube.com/watch?v=')) {
       const id = url.split('v=')[1]?.split('&')[0];
-      return `https://www.youtube.com/embed/${id}?autoplay=1&mute=1`;
+      return `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&controls=0&disablekb=1&modestbranding=1&rel=0`;
     }
     if (url.includes('youtu.be/')) {
       const id = url.split('youtu.be/')[1]?.split('?')[0];
-      return `https://www.youtube.com/embed/${id}?autoplay=1&mute=1`;
+      return `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&controls=0&disablekb=1&modestbranding=1&rel=0`;
     }
     if (url.includes('youtube.com/live/')) {
       const id = url.split('live/')[1]?.split('?')[0];
-      return `https://www.youtube.com/embed/${id}?autoplay=1&mute=1`;
+      return `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&controls=0&disablekb=1&modestbranding=1&rel=0`;
     }
     if (url.includes('facebook.com')) {
-      return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1`;
+      return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=1`;
     }
     return url;
   };
@@ -139,7 +141,6 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
         <div className="flex items-center gap-4 shrink-0 mr-6">
           <div className="flex flex-col">
             <div className="flex items-center gap-3 cursor-pointer uppercase shrink-0 overflow-visible py-1">
-              {/* LIVE button moved to the LEFT */}
               {content.isBroadcasting && (
                 <button 
                   onClick={() => setIsLiveViewerOpen(true)}
@@ -226,30 +227,49 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
            </div>
            
            <div className="w-full max-w-5xl glass rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl relative flex flex-col md:flex-row aspect-video">
-              <div className="flex-1 bg-black relative">
+              <div className="flex-1 bg-black relative group/player">
                  <div className="absolute top-6 left-6 flex items-center gap-2 px-3 py-1 bg-red-600 rounded-full z-10 animate-live-blink">
                     <div className="w-2 h-2 bg-white rounded-full"></div>
                     <span className="text-[10px] font-black text-white uppercase tracking-tighter">LIVE BROADCAST</span>
                  </div>
                  
+                 {/* VISITOR MUTE/UNMUTE BUTTON OVERLAY */}
+                 <div className="absolute bottom-6 right-6 z-20 opacity-0 group-hover/player:opacity-100 transition-opacity duration-300">
+                    <button 
+                      onClick={() => {
+                        setIsMuted(!isMuted);
+                        if (liveVideoRef.current) liveVideoRef.current.muted = !isMuted;
+                      }}
+                      className="p-4 bg-black/60 backdrop-blur-md border border-white/20 rounded-full text-white hover:scale-110 active:scale-95 transition-all shadow-xl"
+                    >
+                      {isMuted ? (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>
+                      ) : (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                      )}
+                    </button>
+                 </div>
+
                  <div className="w-full h-full flex flex-col items-center justify-center text-center">
                     {content.isBroadcasting && content.broadcastSource === 'external' && content.streamUrl ? (
                       <>
                         {(streamType === 'youtube' || streamType === 'facebook') ? (
-                          <iframe 
-                            src={getEmbedUrl(content.streamUrl)}
-                            className="w-full h-full border-none"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowFullScreen
-                          ></iframe>
+                          <div className="w-full h-full relative pointer-events-none">
+                            <iframe 
+                              src={getEmbedUrl(content.streamUrl)}
+                              className="w-full h-full border-none"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            ></iframe>
+                            {/* Invisible overlay to block click interactions like pause/seek on YouTube */}
+                            <div className="absolute inset-0 z-10"></div>
+                          </div>
                         ) : (
                           <video 
                             ref={liveVideoRef}
-                            controls 
                             autoPlay 
-                            muted
+                            muted={isMuted}
                             playsInline
-                            className="w-full h-full object-contain"
+                            className="w-full h-full object-contain pointer-events-none"
                             poster="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=800"
                           />
                         )}
