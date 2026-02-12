@@ -11,12 +11,16 @@ import LifeStory from './components/LifeStory';
 import SocialLinks from './components/SocialLinks';
 import Login from './components/Login';
 import AdminPanel from './components/AdminPanel';
+import ContactPopup from './components/ContactPopup';
+import AboutPopup from './components/AboutPopup';
 
 const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('en');
   const [customBio, setCustomBio] = useState<{ title: string; desc: string } | null>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   
   // Persistence state
   const [activeContent, setActiveContent] = useState<Record<Language, Content>>(TRANSLATIONS);
@@ -111,7 +115,13 @@ const App: React.FC = () => {
         <Navbar lang={lang} setLang={setLang} content={content} highlights={activeHighlights} />
 
         <div className="pt-16">
-          <Hero content={heroContent} images={activeHeroImages} lang={lang} />
+          <Hero 
+            content={heroContent} 
+            images={activeHeroImages} 
+            lang={lang} 
+            onContactClick={() => setIsContactOpen(true)}
+            onAboutClick={() => setIsAboutOpen(true)}
+          />
           <Stats content={content} />
           <LifeStory content={content} stories={activeStories} />
           <Personalizer 
@@ -141,6 +151,18 @@ const App: React.FC = () => {
           </button>
         </footer>
       </div>
+
+      <ContactPopup 
+        isOpen={isContactOpen} 
+        onToggle={() => setIsContactOpen(!isContactOpen)} 
+        onClose={() => setIsContactOpen(false)} 
+      />
+
+      <AboutPopup 
+        isOpen={isAboutOpen}
+        onClose={() => setIsAboutOpen(false)}
+        lang={lang}
+      />
 
       {isLoginOpen && (
         <Login 

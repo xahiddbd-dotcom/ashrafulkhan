@@ -6,9 +6,11 @@ interface HeroProps {
   content: Content;
   images: string[];
   lang: Language;
+  onContactClick: () => void;
+  onAboutClick: () => void;
 }
 
-const Hero: React.FC<HeroProps> = ({ content, images, lang }) => {
+const Hero: React.FC<HeroProps> = ({ content, images, lang, onContactClick, onAboutClick }) => {
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const [isGlowFlashing, setIsGlowFlashing] = useState(false);
   const [volume, setVolume] = useState(0.5);
@@ -233,10 +235,16 @@ const Hero: React.FC<HeroProps> = ({ content, images, lang }) => {
       </p>
 
       <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-        <button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-full font-bold transition-all shadow-xl hover:shadow-blue-500/20 active:scale-95">
+        <button 
+          onClick={onAboutClick}
+          className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-full font-bold transition-all shadow-xl hover:shadow-blue-500/20 active:scale-95"
+        >
           {content.work}
         </button>
-        <button className="w-full sm:w-auto glass hover:bg-black/5 dark:hover:bg-white/10 px-10 py-4 rounded-full font-bold transition-all border border-blue-500/20 dark:border-white/20 active:scale-95">
+        <button 
+          onClick={onContactClick}
+          className="w-full sm:w-auto glass hover:bg-black/5 dark:hover:bg-white/10 px-10 py-4 rounded-full font-bold transition-all border border-blue-500/20 dark:border-white/20 active:scale-95"
+        >
           {content.contact}
         </button>
       </div>
