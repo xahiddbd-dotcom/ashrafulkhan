@@ -7,19 +7,21 @@ interface AdminPanelProps {
   initialProjects: Project[];
   initialStories: Story[];
   initialHighlights: SocialHighlight[];
-  onSave: (content: Record<Language, Content>, projects: Project[], stories: Story[], highlights: SocialHighlight[]) => void;
+  initialHeroImages: string[];
+  onSave: (content: Record<Language, Content>, projects: Project[], stories: Story[], highlights: SocialHighlight[], heroImages: string[]) => void;
   onLogout: () => void;
 }
 
 const AdminPanel: React.FC<AdminPanelProps> = ({ 
-  initialContent, initialProjects, initialStories, initialHighlights, onSave, onLogout 
+  initialContent, initialProjects, initialStories, initialHighlights, initialHeroImages, onSave, onLogout 
 }) => {
-  const [activeTab, setActiveTab] = useState<'content' | 'projects' | 'stories' | 'highlights' | 'sync'>('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'hero' | 'projects' | 'stories' | 'highlights' | 'sync'>('content');
   const [editLang, setEditLang] = useState<Language>('en');
   const [content, setContent] = useState(initialContent);
   const [projects, setProjects] = useState(initialProjects);
   const [stories, setStories] = useState(initialStories);
   const [highlights, setHighlights] = useState(initialHighlights);
+  const [heroImages, setHeroImages] = useState(initialHeroImages);
 
   const handleContentChange = (key: keyof Content, value: any) => {
     setContent({
@@ -29,13 +31,22 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   };
 
   const handleSave = () => {
-    onSave(content, projects, stories, highlights);
+    onSave(content, projects, stories, highlights, heroImages);
     alert('Changes saved successfully!');
+  };
+
+  // Hero Image Management
+  const addHeroImage = () => setHeroImages([...heroImages, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600']);
+  const removeHeroImage = (index: number) => setHeroImages(heroImages.filter((_, i) => i !== index));
+  const updateHeroImage = (index: number, url: string) => {
+    const newImages = [...heroImages];
+    newImages[index] = url;
+    setHeroImages(newImages);
   };
 
   // Sync Logic
   const handleExport = () => {
-    const data = { content, projects, stories, highlights };
+    const data = { content, projects, stories, highlights, heroImages };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -52,9 +63,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       try {
         const imported = JSON.parse(ev.target?.result as string);
         setContent(imported.content);
-        setProjects(imported.projects);
-        setStories(imported.stories);
-        setHighlights(imported.highlights);
+        setProjects(imported.projects || []);
+        setStories(imported.stories || []);
+        setHighlights(imported.highlights || []);
+        setHeroImages(imported.heroImages || []);
         alert('Data imported successfully. Remember to Save All Changes!');
       } catch (err) {
         alert('Invalid data format.');
@@ -84,12 +96,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       <header className="border-b border-white/10 p-6 flex justify-between items-center glass">
         <div className="flex items-center gap-4 flex-wrap">
           <h1 className="text-2xl font-black text-blue-500 uppercase tracking-tighter">Admin Dashboard</h1>
-          <nav className="flex gap-2 bg-white/5 p-1 rounded-full">
-            {(['content', 'projects', 'stories', 'highlights', 'sync'] as const).map(tab => (
+          <nav className="flex gap-2 bg-white/5 p-1 rounded-full overflow-x-auto no-scrollbar max-w-[50vw]">
+            {(['content', 'hero', 'projects', 'stories', 'highlights', 'sync'] as const).map(tab => (
               <button 
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-1.5 rounded-full text-[10px] font-bold transition-all uppercase ${activeTab === tab ? 'bg-blue-600 shadow-lg shadow-blue-500/20' : 'hover:bg-white/5 text-gray-400'}`}
+                className={`px-4 py-1.5 rounded-full text-[10px] font-bold transition-all uppercase whitespace-nowrap ${activeTab === tab ? 'bg-blue-600 shadow-lg shadow-blue-500/20' : 'hover:bg-white/5 text-gray-400'}`}
               >
                 {tab}
               </button>
@@ -134,6 +146,38 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                     onChange={(e) => handleContentChange(key as keyof Content, e.target.value)}
                     className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-sm h-20"
                   />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'hero' && (
+          <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="flex justify-between items-center">
+              <h2 className="text-3xl font-bold">Hero Slideshow</h2>
+              <button onClick={addHeroImage} className="bg-blue-600 px-6 py-2 rounded-xl text-sm font-bold">+ Add Image</button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {heroImages.map((img, idx) => (
+                <div key={idx} className="glass p-6 rounded-[2rem] border border-white/10 flex flex-col gap-4 relative group">
+                   <button 
+                    onClick={() => removeHeroImage(idx)} 
+                    className="absolute top-4 right-4 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500/10 p-2 rounded-full"
+                   >
+                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                   </button>
+                   <img src={img} className="w-full h-32 rounded-xl object-cover border border-white/5" alt={`Hero ${idx}`} />
+                   <div className="space-y-1">
+                     <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Image URL</label>
+                     <input 
+                      type="text"
+                      value={img}
+                      onChange={(e) => updateHeroImage(idx, e.target.value)}
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-xs"
+                      placeholder="Enter image URL..."
+                     />
+                   </div>
                 </div>
               ))}
             </div>
@@ -195,7 +239,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
           </div>
         )}
 
-        {/* Existing logic for projects and stories */}
         {activeTab === 'projects' && (
            <div className="space-y-8 animate-in fade-in duration-500">
              <div className="flex justify-between items-center"><h2 className="text-3xl font-bold">Projects</h2><button onClick={addProject} className="bg-blue-600 px-6 py-2 rounded-xl text-sm font-bold">+ New Project</button></div>

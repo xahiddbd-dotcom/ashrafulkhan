@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Language, Content, Project, Story, SocialHighlight } from './types';
-import { TRANSLATIONS, PROJECTS, INITIAL_STORIES, INITIAL_HIGHLIGHTS } from './constants';
+import { TRANSLATIONS, PROJECTS, INITIAL_STORIES, INITIAL_HIGHLIGHTS, HERO_IMAGES } from './constants';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Stats from './components/Stats';
@@ -23,6 +23,7 @@ const App: React.FC = () => {
   const [activeProjects, setActiveProjects] = useState<Project[]>(PROJECTS);
   const [activeStories, setActiveStories] = useState<Story[]>(INITIAL_STORIES);
   const [activeHighlights, setActiveHighlights] = useState<SocialHighlight[]>(INITIAL_HIGHLIGHTS);
+  const [activeHeroImages, setActiveHeroImages] = useState<string[]>(HERO_IMAGES);
 
   // Load from LocalStorage on mount
   useEffect(() => {
@@ -30,10 +31,13 @@ const App: React.FC = () => {
     const savedProjects = localStorage.getItem('portfolio_projects');
     const savedStories = localStorage.getItem('portfolio_stories');
     const savedHighlights = localStorage.getItem('portfolio_highlights');
+    const savedHeroImages = localStorage.getItem('portfolio_hero_images');
+    
     if (savedContent) setActiveContent(JSON.parse(savedContent));
     if (savedProjects) setActiveProjects(JSON.parse(savedProjects));
     if (savedStories) setActiveStories(JSON.parse(savedStories));
     if (savedHighlights) setActiveHighlights(JSON.parse(savedHighlights));
+    if (savedHeroImages) setActiveHeroImages(JSON.parse(savedHeroImages));
   }, []);
 
   const content = activeContent[lang];
@@ -48,16 +52,21 @@ const App: React.FC = () => {
     newContent: Record<Language, Content>, 
     newProjects: Project[], 
     newStories: Story[], 
-    newHighlights: SocialHighlight[]
+    newHighlights: SocialHighlight[],
+    newHeroImages: string[]
   ) => {
     setActiveContent(newContent);
     setActiveProjects(newProjects);
     setActiveStories(newStories);
     setActiveHighlights(newHighlights);
+    setActiveHeroImages(newHeroImages);
+    
     localStorage.setItem('portfolio_content', JSON.stringify(newContent));
     localStorage.setItem('portfolio_projects', JSON.stringify(newProjects));
     localStorage.setItem('portfolio_stories', JSON.stringify(newStories));
     localStorage.setItem('portfolio_highlights', JSON.stringify(newHighlights));
+    localStorage.setItem('portfolio_hero_images', JSON.stringify(newHeroImages));
+    
     setIsAdminMode(false);
   };
 
@@ -68,6 +77,7 @@ const App: React.FC = () => {
         initialProjects={activeProjects}
         initialStories={activeStories}
         initialHighlights={activeHighlights}
+        initialHeroImages={activeHeroImages}
         onSave={handleAdminSave}
         onLogout={() => setIsAdminMode(false)}
       />
@@ -82,7 +92,7 @@ const App: React.FC = () => {
         <Navbar lang={lang} setLang={setLang} content={content} highlights={activeHighlights} />
 
         <div className="pt-16"> {/* Add padding for fixed navbar */}
-          <Hero content={heroContent} />
+          <Hero content={heroContent} images={activeHeroImages} />
 
           <Stats content={content} />
 

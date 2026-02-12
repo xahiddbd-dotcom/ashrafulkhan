@@ -1,21 +1,23 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Content } from '../types';
-import { HERO_IMAGES } from '../constants';
 
 interface HeroProps {
   content: Content;
+  images: string[];
 }
 
-const Hero: React.FC<HeroProps> = ({ content }) => {
+const Hero: React.FC<HeroProps> = ({ content, images }) => {
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const [isGlowFlashing, setIsGlowFlashing] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const heroImages = images.length > 0 ? images : ["https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600"];
+
   const resetTimer = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      setCurrentImgIndex((prev) => (prev + 1) % HERO_IMAGES.length);
+      setCurrentImgIndex((prev) => (prev + 1) % heroImages.length);
     }, 30000);
   };
 
@@ -24,7 +26,7 @@ const Hero: React.FC<HeroProps> = ({ content }) => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, []);
+  }, [heroImages.length]);
 
   const triggerGlow = () => {
     setIsGlowFlashing(true);
@@ -32,13 +34,13 @@ const Hero: React.FC<HeroProps> = ({ content }) => {
   };
 
   const nextSlide = () => {
-    setCurrentImgIndex((prev) => (prev + 1) % HERO_IMAGES.length);
+    setCurrentImgIndex((prev) => (prev + 1) % heroImages.length);
     triggerGlow();
     resetTimer();
   };
 
   const prevSlide = () => {
-    setCurrentImgIndex((prev) => (prev === 0 ? HERO_IMAGES.length - 1 : prev - 1));
+    setCurrentImgIndex((prev) => (prev === 0 ? heroImages.length - 1 : prev - 1));
     triggerGlow();
     resetTimer();
   };
@@ -81,7 +83,7 @@ const Hero: React.FC<HeroProps> = ({ content }) => {
           <div className="glow-frame-animator"></div>
           
           <div className="glow-frame-inner" style={{ width: 'min(90vw, 576px)', height: 'calc(min(90vw, 576px) * (3.5 / 6))' }}>
-              {HERO_IMAGES.map((img, index) => (
+              {heroImages.map((img, index) => (
                   <img 
                       key={index}
                       src={img} 
@@ -98,7 +100,7 @@ const Hero: React.FC<HeroProps> = ({ content }) => {
         
         {/* Progress Indicator Dots */}
         <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-            {HERO_IMAGES.map((_, index) => (
+            {heroImages.map((_, index) => (
                 <button 
                     key={index} 
                     onClick={() => { setCurrentImgIndex(index); triggerGlow(); resetTimer(); }}
