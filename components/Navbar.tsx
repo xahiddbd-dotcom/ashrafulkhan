@@ -93,7 +93,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
         }
         @keyframes blink-red {
           0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(1.1); }
+          50% { opacity: 0.4; transform: scale(1.05); }
         }
         .animate-brand-3d {
           display: inline-block;
@@ -101,23 +101,22 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
           transform-style: preserve-3d;
         }
         .animate-live-blink {
-          animation: blink-red 1s infinite;
+          animation: blink-red 0.8s infinite;
         }
       `}</style>
       
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center px-4 md:px-8 py-2 bg-slate-950/70 backdrop-blur-2xl border-b border-white/5">
         <div className="flex items-center gap-4 shrink-0 mr-6">
           <div className="flex flex-col">
-            <div className="flex items-center gap-3 cursor-pointer uppercase shrink-0 overflow-visible py-1">
+            <div className="flex items-center gap-2 cursor-pointer uppercase shrink-0 overflow-visible py-1">
               <span className="text-xl md:text-2xl font-black tracking-tighter animate-brand-3d">
                 {content.brandName}
               </span>
               
-              {/* LIVE Indicator right next to the name */}
               {content.isBroadcasting && (
                 <button 
                   onClick={() => setIsLiveViewerOpen(true)}
-                  className="flex items-center gap-1.5 px-2.5 py-0.5 bg-red-600 hover:bg-red-700 rounded-md transition-all animate-live-blink shadow-[0_0_15px_rgba(220,38,38,0.4)]"
+                  className="flex items-center gap-1.5 px-2.5 py-1 bg-red-600 hover:bg-red-700 rounded-lg transition-all animate-live-blink shadow-[0_0_20px_rgba(220,38,38,0.5)] active:scale-95"
                 >
                   <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                   <span className="text-[9px] font-black text-white uppercase tracking-tighter">LIVE</span>
@@ -194,40 +193,55 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
              </button>
            </div>
            
-           <div className="w-full max-w-4xl glass rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl relative flex flex-col md:flex-row aspect-video">
+           <div className="w-full max-w-5xl glass rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl relative flex flex-col md:flex-row aspect-video">
               <div className="flex-1 bg-black relative">
                  <div className="absolute top-6 left-6 flex items-center gap-2 px-3 py-1 bg-red-600 rounded-full z-10 animate-live-blink">
                     <div className="w-2 h-2 bg-white rounded-full"></div>
-                    <span className="text-[10px] font-black text-white uppercase tracking-tighter">LIVE STREAM</span>
+                    <span className="text-[10px] font-black text-white uppercase tracking-tighter">LIVE BROADCAST</span>
                  </div>
                  
-                 {/* This would be the actual stream in a real app */}
-                 <div className="w-full h-full flex flex-col items-center justify-center text-center p-10">
-                    <svg className="w-20 h-20 text-blue-500/50 mb-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                    <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">Waiting for Signal...</h3>
-                    <p className="text-gray-500 max-w-xs text-sm">Ashraful Khan is preparing the live broadcast. Signal will appear here automatically.</p>
+                 <div className="w-full h-full flex flex-col items-center justify-center text-center">
+                    {content.broadcastSource === 'external' && content.streamUrl ? (
+                      <video 
+                        src={content.streamUrl} 
+                        controls 
+                        autoPlay 
+                        className="w-full h-full object-contain"
+                        poster="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=800"
+                      />
+                    ) : (
+                      <div className="p-10">
+                        <svg className="w-20 h-20 text-blue-500/50 mb-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">Waiting for Feed...</h3>
+                        <p className="text-gray-500 max-w-xs text-sm">Ashraful is broadcasting. The signal will sync shortly.</p>
+                      </div>
+                    )}
                  </div>
               </div>
               
-              <div className="w-full md:w-80 bg-slate-900/50 p-8 flex flex-col">
+              <div className="w-full md:w-80 bg-slate-900/50 p-8 flex flex-col border-l border-white/5">
                  <div className="flex items-center gap-3 mb-8">
                     <div className="w-10 h-10 rounded-full border-2 border-blue-500 p-0.5">
                       <img src="https://via.placeholder.com/150" className="w-full h-full rounded-full object-cover" alt="Profile" />
                     </div>
                     <div>
                       <h4 className="text-white font-bold text-sm tracking-tight">{content.brandName}</h4>
-                      <p className="text-blue-400 text-[10px] font-black uppercase tracking-widest">Broadcaster</p>
+                      <p className="text-blue-400 text-[10px] font-black uppercase tracking-widest">{content.broadcastSource === 'external' ? 'OBS STREAM' : 'BROWSER CAM'}</p>
                     </div>
                  </div>
                  
                  <div className="flex-1 space-y-4">
                     <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                       <p className="text-gray-400 text-xs font-medium italic">"Hello everyone! Welcome to my live dev session. Feel free to ask questions."</p>
+                       <p className="text-gray-400 text-xs font-medium italic">"Broadcasting directly from my setup. Let's build something amazing together!"</p>
+                    </div>
+                    <div className="flex items-center justify-between text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">
+                       <span>Status</span>
+                       <span className="text-green-500">Live & Active</span>
                     </div>
                  </div>
                  
-                 <button className="mt-8 w-full bg-blue-600 py-3 rounded-xl text-white font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">
-                    Send Message
+                 <button className="mt-8 w-full bg-blue-600 py-3 rounded-xl text-white font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 active:scale-95">
+                    Send Super Chat
                  </button>
               </div>
            </div>
@@ -241,7 +255,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
               {isPaused ? (
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" /></svg>
               ) : (
-                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" /></svg>
+                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1-1v4a1 1 0 102 0V8a1 1 0 00-1-1z" /></svg>
               )}
             </button>
             <button onClick={() => setActiveStory(null)} className="text-white/50 hover:text-white p-3 hover:bg-white/10 rounded-full">

@@ -27,7 +27,9 @@ export interface Content {
   lifeStoryTitle: string;
   socialTitle: string;
   isOnline?: boolean;
-  isBroadcasting?: boolean; // New property for LIVE status
+  isBroadcasting?: boolean;
+  broadcastSource?: 'browser' | 'external'; // 'browser' for webcam, 'external' for OBS/RTMP
+  streamUrl?: string; // HLS (.m3u8) or direct video URL for external streaming
 }
 
 export interface Project {
