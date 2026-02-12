@@ -7,14 +7,15 @@
     <title>ASHRAFUL KHAN | Professional Portfolio</title>
     <meta name="description" content="Professional portfolio of Ashraful Khan, a Developer from Farmgate, Dhaka. Built with React and Gemini AI.">
     
-    <!-- Favicon placeholder -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Hind+Siliguri:wght@300;400;600;700&display=swap" rel="stylesheet">
     
+    <!-- Google Identity Services for Drive API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
     <script>
-        // Critical path theme check to prevent flash of unstyled content
         (function() {
             try {
                 const theme = localStorage.getItem('theme');
@@ -148,6 +149,9 @@
         .animate-blob {
             animation: blob 7s infinite alternate;
         }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 <script type="importmap">
 {
@@ -163,13 +167,11 @@
 </script>
 </head>
 <body class="min-h-screen overflow-x-hidden">
-    <!-- Cartoon/Anime Background Video (only visible in Dark mode) -->
     <video autoplay muted loop playsinline class="bg-video">
         <source src="https://assets.mixkit.co/videos/preview/mixkit-starry-night-sky-over-a-mountain-landscape-40432-large.mp4" type="video/mp4">
     </video>
     <div class="video-overlay"></div>
     <div id="root"></div>
-    <!-- Script entry point -->
     <script type="module" src="/index.tsx"></script>
 </body>
 </html>

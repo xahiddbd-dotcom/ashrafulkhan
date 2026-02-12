@@ -5,6 +5,7 @@ export const TRANSLATIONS: Record<Language, Content> = {
   en: {
     brandName: "ASHRAFUL KHAN",
     title: "Hi, I'm a Developer",
+    titleSize: "text-5xl md:text-8xl",
     desc: "I build modern, high-performance web applications with a focus on user experience and clean code.",
     work: "View Projects",
     contact: "Contact Me",
@@ -24,6 +25,7 @@ export const TRANSLATIONS: Record<Language, Content> = {
   bn: {
     brandName: "আশরাফুল ইসলাম",
     title: "হ্যালো, আমি একজন ডেভেলপার",
+    titleSize: "text-4xl md:text-7xl",
     desc: "আমি আধুনিক এবং উচ্চ-ক্ষমতাসম্পন্ন ওয়েব অ্যাপ্লিকেশন তৈরি করি, যেখানে ব্যবহারকারীর অভিজ্ঞতা এবং ক্লিন কোডকে প্রাধান্য দিই।",
     work: "প্রজেক্ট দেখুন",
     contact: "যোগাযোগ করুন",
@@ -66,7 +68,8 @@ export const INITIAL_HIGHLIGHTS: SocialHighlight[] = [
     url: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800',
     thumbnail: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=200',
     caption: 'Coding late at night... 💻',
-    timestamp: '2h ago'
+    timestamp: '2h ago',
+    createdAt: Date.now() - (2 * 60 * 60 * 1000)
   },
   {
     id: 'h2',
@@ -74,7 +77,8 @@ export const INITIAL_HIGHLIGHTS: SocialHighlight[] = [
     url: 'https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-screen-close-up-1728-large.mp4',
     thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=200',
     caption: 'New feature preview! 🚀',
-    timestamp: '5h ago'
+    timestamp: '5h ago',
+    createdAt: Date.now() - (5 * 60 * 60 * 1000)
   }
 ];
 

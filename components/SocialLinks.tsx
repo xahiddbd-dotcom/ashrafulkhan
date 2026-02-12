@@ -1,20 +1,20 @@
 
 import React from 'react';
-import { SOCIAL_LINKS } from '../constants';
-import { Content } from '../types';
+import { SocialLink, Content } from '../types';
 
 interface SocialLinksProps {
   content: Content;
+  links: SocialLink[];
 }
 
-const SocialLinks: React.FC<SocialLinksProps> = ({ content }) => {
+const SocialLinks: React.FC<SocialLinksProps> = ({ content, links }) => {
   return (
     <section className="max-w-4xl mx-auto px-6 py-20 text-center">
       <h2 className="text-2xl font-bold mb-8 text-gray-400">{content.socialTitle}</h2>
-      <div className="flex justify-center gap-6">
-        {SOCIAL_LINKS.map((link) => (
+      <div className="flex justify-center flex-wrap gap-6">
+        {links.map((link, idx) => (
           <a
-            key={link.platform}
+            key={`${link.platform}-${idx}`}
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
@@ -33,7 +33,7 @@ const SocialLinks: React.FC<SocialLinksProps> = ({ content }) => {
                 <path d={link.icon} />
               </svg>
             </div>
-            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs font-bold tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-gray-400">
+            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs font-bold tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-gray-400 whitespace-nowrap">
               {link.platform.toUpperCase()}
             </span>
           </a>

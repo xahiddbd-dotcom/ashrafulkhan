@@ -11,6 +11,7 @@ export interface SocialLink {
 export interface Content {
   brandName: string;
   title: string;
+  titleSize?: string; // New property for controlling font size
   desc: string;
   work: string;
   contact: string;
@@ -25,7 +26,7 @@ export interface Content {
   loading: string;
   lifeStoryTitle: string;
   socialTitle: string;
-  isOnline?: boolean; // New field for status indicator
+  isOnline?: boolean;
 }
 
 export interface Project {
@@ -51,4 +52,5 @@ export interface SocialHighlight {
   thumbnail: string;
   caption: string;
   timestamp: string;
+  createdAt: number; // Timestamp in milliseconds for expiry logic
 }

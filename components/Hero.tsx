@@ -111,7 +111,8 @@ const Hero: React.FC<HeroProps> = ({ content, images }) => {
         </div>
       </div>
       
-      <h1 className="text-5xl md:text-8xl font-black mb-6 leading-tight tracking-tight text-gradient transition-all duration-700">
+      {/* Dynamic font size applied here */}
+      <h1 className={`${content.titleSize || 'text-5xl md:text-8xl'} font-black mb-6 leading-tight tracking-tight text-gradient transition-all duration-700`}>
         {content.title}
       </h1>
       
