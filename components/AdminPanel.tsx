@@ -54,11 +54,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     handleContentChange('isBroadcasting', false);
   };
 
-  // Google Drive Integration State
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState<string | null>(null);
-  const [googleClientId, setGoogleClientId] = useState(localStorage.getItem('google_client_id') || '');
-
   const handleContentChange = (key: keyof Content, value: any) => {
     setContent(prev => ({
       ...prev,
@@ -84,6 +79,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
+
+  // Google Drive Integration State
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState<string | null>(null);
+  const [googleClientId, setGoogleClientId] = useState(localStorage.getItem('google_client_id') || '');
 
   const initGoogleAuth = () => {
     if (!googleClientId) {
@@ -217,27 +217,25 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                  <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                        <div className="space-y-4">
-                          <h3 className="text-sm font-bold text-red-500 uppercase tracking-widest">OBS Configuration</h3>
+                          <h3 className="text-sm font-bold text-red-500 uppercase tracking-widest">OBS Integration</h3>
                           <p className="text-xs text-gray-400 leading-relaxed">
-                            To stream via OBS, you need a streaming service (like Livepeer, Mux, or YouTube). Paste your public HLS playback URL below.
+                            To use OBS, paste an HLS Playback URL from a service like YouTube, Vimeo, or Livepeer. Portfolio will use <strong>Hls.js</strong> to render the feed.
                           </p>
                           <div className="space-y-2">
-                             <label className="text-[10px] font-bold text-gray-500 uppercase">Playback URL (.m3u8 or Video)</label>
+                             <label className="text-[10px] font-bold text-gray-500 uppercase">HLS Playback URL (.m3u8)</label>
                              <input 
                                 type="text" 
                                 value={currentContent.streamUrl || ''} 
                                 onChange={(e) => handleContentChange('streamUrl', e.target.value)}
                                 className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs font-mono"
-                                placeholder="https://stream.provider.com/live/index.m3u8"
+                                placeholder="e.g., https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
                              />
                           </div>
-                          <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                             <h4 className="text-[10px] font-bold uppercase mb-2 text-blue-400">Quick Guide</h4>
-                             <ul className="text-[10px] text-gray-500 space-y-1 list-disc pl-3">
-                                <li>Setup OBS with your RTMP Provider</li>
-                                <li>Get the Playback URL from your Provider</li>
-                                <li>Paste it here and toggle LIVE status</li>
-                             </ul>
+                          <div className="p-4 rounded-2xl bg-blue-600/5 border border-blue-500/10">
+                             <h4 className="text-[10px] font-bold uppercase mb-2 text-blue-400">Pro Tip</h4>
+                             <p className="text-[10px] text-gray-500 leading-normal">
+                                Ensure your stream provider allows CORS (Cross-Origin Resource Sharing), or the video will fail to load in the browser.
+                             </p>
                           </div>
                        </div>
                        
@@ -245,13 +243,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                           <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${currentContent.isBroadcasting ? 'bg-red-600 shadow-[0_0_20px_rgba(220,38,38,0.5)]' : 'bg-gray-800'}`}>
                              <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
                           </div>
-                          <h3 className="text-lg font-black uppercase mb-1">Public Live Status</h3>
-                          <p className="text-xs text-gray-500 mb-6 uppercase tracking-widest">Toggle indicator for visitors</p>
+                          <h3 className="text-lg font-black uppercase mb-1">Portfolio Live Status</h3>
+                          <p className="text-xs text-gray-500 mb-6 uppercase tracking-widest">Toggle ON to notify visitors</p>
                           <button 
                             onClick={() => handleContentChange('isBroadcasting', !currentContent.isBroadcasting)}
                             className={`px-10 py-3 rounded-2xl font-black transition-all ${currentContent.isBroadcasting ? 'bg-red-600 hover:bg-red-700 shadow-xl' : 'bg-white/10 hover:bg-white/20 text-gray-400'}`}
                           >
-                            {currentContent.isBroadcasting ? 'GOING LIVE NOW' : 'GO LIVE (OFFLINE)'}
+                            {currentContent.isBroadcasting ? 'STOP PUBLIC BROADCAST' : 'ACTIVATE PUBLIC LIVE'}
                           </button>
                        </div>
                     </div>

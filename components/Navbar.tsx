@@ -16,6 +16,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const liveVideoRef = useRef<HTMLVideoElement>(null);
 
   const toggleTheme = () => {
     if (isDark) {
@@ -54,6 +55,32 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
       else videoRef.current.pause();
     }
   };
+
+  // Initialize HLS for Live Stream
+  useEffect(() => {
+    if (isLiveViewerOpen && content.broadcastSource === 'external' && content.streamUrl && liveVideoRef.current) {
+      const video = liveVideoRef.current;
+      const hlsUrl = content.streamUrl;
+
+      // Check if HLS.js is supported
+      if ((window as any).Hls && (window as any).Hls.isSupported()) {
+        const hls = new (window as any).Hls();
+        hls.loadSource(hlsUrl);
+        hls.attachMedia(video);
+        hls.on((window as any).Hls.Events.MANIFEST_PARSED, () => {
+          video.play().catch(e => console.error("Autoplay prevented:", e));
+        });
+        return () => hls.destroy();
+      } 
+      // Fallback for Safari (native HLS support)
+      else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = hlsUrl;
+        video.addEventListener('loadedmetadata', () => {
+          video.play().catch(e => console.error("Autoplay prevented:", e));
+        });
+      }
+    }
+  }, [isLiveViewerOpen, content.broadcastSource, content.streamUrl]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setInterval>;
@@ -201,19 +228,21 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
                  </div>
                  
                  <div className="w-full h-full flex flex-col items-center justify-center text-center">
-                    {content.broadcastSource === 'external' && content.streamUrl ? (
+                    {content.isBroadcasting && content.broadcastSource === 'external' && content.streamUrl ? (
                       <video 
-                        src={content.streamUrl} 
+                        ref={liveVideoRef}
                         controls 
                         autoPlay 
+                        muted
+                        playsInline
                         className="w-full h-full object-contain"
                         poster="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=800"
                       />
                     ) : (
                       <div className="p-10">
                         <svg className="w-20 h-20 text-blue-500/50 mb-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                        <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">Waiting for Feed...</h3>
-                        <p className="text-gray-500 max-w-xs text-sm">Ashraful is broadcasting. The signal will sync shortly.</p>
+                        <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">Signal Pending</h3>
+                        <p className="text-gray-500 max-w-xs text-sm">Ashraful is initializing the stream. Stay tuned.</p>
                       </div>
                     )}
                  </div>
@@ -226,22 +255,22 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
                     </div>
                     <div>
                       <h4 className="text-white font-bold text-sm tracking-tight">{content.brandName}</h4>
-                      <p className="text-blue-400 text-[10px] font-black uppercase tracking-widest">{content.broadcastSource === 'external' ? 'OBS STREAM' : 'BROWSER CAM'}</p>
+                      <p className="text-blue-400 text-[10px] font-black uppercase tracking-widest">{content.broadcastSource === 'external' ? 'OBS HD STREAM' : 'WEBCAM'}</p>
                     </div>
                  </div>
                  
                  <div className="flex-1 space-y-4">
                     <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                       <p className="text-gray-400 text-xs font-medium italic">"Broadcasting directly from my setup. Let's build something amazing together!"</p>
+                       <p className="text-gray-400 text-xs font-medium italic">"Welcome to the workshop! Ask your questions below."</p>
                     </div>
                     <div className="flex items-center justify-between text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">
-                       <span>Status</span>
-                       <span className="text-green-500">Live & Active</span>
+                       <span>Quality</span>
+                       <span className="text-blue-500">Auto HD</span>
                     </div>
                  </div>
                  
                  <button className="mt-8 w-full bg-blue-600 py-3 rounded-xl text-white font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 active:scale-95">
-                    Send Super Chat
+                    Live Chat
                  </button>
               </div>
            </div>
@@ -255,7 +284,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
               {isPaused ? (
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" /></svg>
               ) : (
-                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1-1v4a1 1 0 102 0V8a1 1 0 00-1-1z" /></svg>
+                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" /></svg>
               )}
             </button>
             <button onClick={() => setActiveStory(null)} className="text-white/50 hover:text-white p-3 hover:bg-white/10 rounded-full">
