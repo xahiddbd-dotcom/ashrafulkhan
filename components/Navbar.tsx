@@ -45,10 +45,44 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
 
   return (
     <>
+      <style>{`
+        @keyframes colorCycle {
+          0%, 100% { color: #3b82f6; text-shadow: 2px 2px 0px #1e3a8a, 4px 4px 0px #1e40af; }
+          25% { color: #8b5cf6; text-shadow: 2px 2px 0px #4c1d95, 4px 4px 0px #5b21b6; }
+          50% { color: #ec4899; text-shadow: 2px 2px 0px #831843, 4px 4px 0px #9d174d; }
+          75% { color: #06b6d4; text-shadow: 2px 2px 0px #164e63, 4px 4px 0px #155e75; }
+        }
+        @keyframes tilt3D {
+          0%, 100% { transform: perspective(500px) rotateX(10deg) rotateY(-15deg) scale(1.05); }
+          50% { transform: perspective(500px) rotateX(-5deg) rotateY(15deg) scale(1.1); }
+        }
+        .animate-brand-3d {
+          display: inline-block;
+          animation: colorCycle 2s infinite ease-in-out, tilt3D 4s infinite ease-in-out;
+          transform-style: preserve-3d;
+        }
+      `}</style>
+      
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center px-4 md:px-8 py-2 bg-slate-950/70 backdrop-blur-2xl border-b border-white/5">
-        {/* Left: Brand Name */}
-        <div className="text-lg md:text-xl font-black tracking-tighter text-blue-500 cursor-pointer uppercase shrink-0 mr-6">
-          {content.brandName}
+        {/* Left: Enhanced 3D Brand Name & Status Indicator */}
+        <div className="flex items-center gap-3 shrink-0 mr-6">
+          <div className="flex flex-col">
+            <div className="cursor-pointer uppercase shrink-0 overflow-visible py-1">
+              <span className="text-xl md:text-2xl font-black tracking-tighter animate-brand-3d">
+                {content.brandName}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 mt-[-2px]">
+              <div className={`w-2 h-2 rounded-full relative ${content.isOnline ? 'bg-green-500' : 'bg-red-500'}`}>
+                {content.isOnline && (
+                  <div className="absolute inset-0 w-2 h-2 rounded-full bg-green-500 animate-ping opacity-75"></div>
+                )}
+              </div>
+              <span className="text-[8px] font-black uppercase tracking-widest text-gray-400">
+                {content.isOnline ? (lang === 'en' ? 'Online' : 'অনলাইন') : (lang === 'en' ? 'Offline' : 'অফলাইন')}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Divider */}
@@ -78,15 +112,8 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
                   </svg>
                 </div>
               )}
-              {/* Optional: Show timestamp or hint under bubble if space permits, 
-                  but keeping it clean for now to use "full space" for many bubbles. */}
             </button>
           ))}
-          
-          {/* Fading edge to indicate more stories */}
-          {highlights.length > 5 && (
-            <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-slate-950/50 to-transparent pointer-events-none hidden md:block"></div>
-          )}
         </div>
         
         {/* Right: Controls */}
@@ -129,22 +156,17 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
           </button>
 
           <div className="relative w-full max-w-[420px] aspect-[9/16] bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl mx-4 border border-white/10 ring-1 ring-white/5">
-            {/* Progress Bar Container */}
-            <div className="absolute top-6 left-6 right-6 z-[220] flex gap-1.5 h-1 bg-white/10 rounded-full overflow-hidden">
+            <div className="absolute top-4 left-4 right-4 z-[220] flex gap-1.5 h-1 bg-white/10 rounded-full overflow-hidden">
               <div 
                 className="bg-white h-full transition-all duration-50 rounded-full shadow-[0_0_10px_white]"
                 style={{ width: `${progress}%` }}
               ></div>
             </div>
-            
-            {/* Content Renderer */}
             {activeStory.type === 'image' ? (
-              <img src={activeStory.url} className="w-full h-full object-cover animate-in zoom-in-105 duration-1000" alt="highlight" />
+              <img src={activeStory.url} className="w-full h-full object-cover" alt="highlight" />
             ) : (
               <video src={activeStory.url} autoPlay muted playsInline loop className="w-full h-full object-cover" />
             )}
-
-            {/* Caption Overlay */}
             <div className="absolute inset-x-0 bottom-0 p-10 bg-gradient-to-t from-black via-black/80 to-transparent">
               <div className="flex items-center gap-3 mb-3">
                 <img src={activeStory.thumbnail} className="w-8 h-8 rounded-full border border-white/20" alt="thumb" />

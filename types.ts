@@ -25,6 +25,7 @@ export interface Content {
   loading: string;
   lifeStoryTitle: string;
   socialTitle: string;
+  isOnline?: boolean; // New field for status indicator
 }
 
 export interface Project {

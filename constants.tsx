@@ -18,7 +18,8 @@ export const TRANSLATIONS: Record<Language, Content> = {
     generateBtn: "Magic Rewrite",
     loading: "Thinking...",
     lifeStoryTitle: "My Personal Journey",
-    socialTitle: "Connect With Me"
+    socialTitle: "Connect With Me",
+    isOnline: true
   },
   bn: {
     brandName: "আশরাফুল ইসলাম",
@@ -36,7 +37,8 @@ export const TRANSLATIONS: Record<Language, Content> = {
     generateBtn: "ম্যাজিক রিরাইট",
     loading: "ভাবছি...",
     lifeStoryTitle: "আমার ব্যক্তিগত গল্প",
-    socialTitle: "যোগাযোগ করুন"
+    socialTitle: "যোগাযোগ করুন",
+    isOnline: true
   }
 };
 
