@@ -86,8 +86,6 @@ const App: React.FC = () => {
     localStorage.setItem('portfolio_highlights', JSON.stringify(newHighlights));
     localStorage.setItem('portfolio_hero_images', JSON.stringify(newHeroImages));
     localStorage.setItem('portfolio_social_links', JSON.stringify(newSocialLinks));
-    
-    // Removed setIsAdminMode(false) to keep the panel open after saving
   };
 
   if (isAdminMode) {
@@ -113,7 +111,7 @@ const App: React.FC = () => {
         <Navbar lang={lang} setLang={setLang} content={content} highlights={activeHighlights} />
 
         <div className="pt-16">
-          <Hero content={heroContent} images={activeHeroImages} />
+          <Hero content={heroContent} images={activeHeroImages} lang={lang} />
           <Stats content={content} />
           <LifeStory content={content} stories={activeStories} />
           <Personalizer 

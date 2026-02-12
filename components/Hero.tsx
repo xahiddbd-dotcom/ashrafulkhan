@@ -1,17 +1,21 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Content } from '../types';
+import { Content, Language } from '../types';
 
 interface HeroProps {
   content: Content;
   images: string[];
+  lang: Language;
 }
 
-const Hero: React.FC<HeroProps> = ({ content, images }) => {
+const Hero: React.FC<HeroProps> = ({ content, images, lang }) => {
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const [isGlowFlashing, setIsGlowFlashing] = useState(false);
+  const [volume, setVolume] = useState(0.5);
+  const [isMuted, setIsMuted] = useState(true);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const hlsRef = useRef<HTMLVideoElement>(null);
+  const directVideoRef = useRef<HTMLVideoElement>(null);
 
   const heroImages = images.length > 0 ? images : ["https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600"];
 
@@ -49,6 +53,15 @@ const Hero: React.FC<HeroProps> = ({ content, images }) => {
       }
     }
   }, [content.isBroadcasting, content.streamUrl]);
+
+  // Sync volume for direct video or HLS
+  useEffect(() => {
+    const v = hlsRef.current || directVideoRef.current;
+    if (v) {
+      v.volume = volume;
+      v.muted = isMuted;
+    }
+  }, [volume, isMuted, content.isBroadcasting]);
 
   const triggerGlow = () => {
     setIsGlowFlashing(true);
@@ -129,22 +142,60 @@ const Hero: React.FC<HeroProps> = ({ content, images }) => {
           
           <div className="glow-frame-inner bg-black" style={{ width: 'min(90vw, 576px)', height: 'calc(min(90vw, 576px) * (3.5 / 6))' }}>
               {content.isBroadcasting ? (
-                <div className="w-full h-full relative overflow-hidden">
+                <div className="w-full h-full relative overflow-hidden group/live">
                   <div className="absolute top-4 left-4 z-20 flex items-center gap-2 px-2 py-1 bg-red-600 rounded-lg animate-live-blink shadow-lg">
                     <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                    <span className="text-[8px] font-black text-white uppercase tracking-tighter">LIVE FEED</span>
+                    <span className="text-[8px] font-black text-white uppercase tracking-tighter">
+                      {lang === 'en' ? 'LIVE FEED' : 'লাইভ ফিড'}
+                    </span>
                   </div>
+
+                  {/* Volume Controls Overlay for Visitor */}
+                  <div className="absolute bottom-4 right-4 z-30 flex items-center gap-2 bg-black/40 backdrop-blur-md p-2 rounded-xl opacity-0 group-hover/live:opacity-100 transition-opacity border border-white/10">
+                    <button 
+                      onClick={() => setIsMuted(!isMuted)}
+                      className="text-white hover:text-blue-400 transition-colors"
+                    >
+                      {isMuted || volume === 0 ? (
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z" /></svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.983 5.983 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.984 3.984 0 00-1.172-2.828a1 1 0 010-1.415z" /></svg>
+                      )}
+                    </button>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="1" 
+                      step="0.05" 
+                      value={isMuted ? 0 : volume}
+                      onChange={(e) => {
+                        const v = parseFloat(e.target.value);
+                        setVolume(v);
+                        if (v > 0) setIsMuted(false);
+                      }}
+                      className="w-16 h-1 bg-white/20 rounded-full appearance-none cursor-pointer accent-blue-500"
+                    />
+                  </div>
+
                   {content.streamUrl ? (
                     (streamType === 'youtube' || streamType === 'facebook') ? (
                       <div className="w-full h-full pointer-events-none">
                         <iframe src={getEmbedUrl(content.streamUrl)} className="w-full h-full" allow="autoplay; encrypted-media"></iframe>
                       </div>
                     ) : (
-                      <video ref={hlsRef} autoPlay muted playsInline className="w-full h-full object-cover pointer-events-none" />
+                      <video 
+                        ref={streamType === 'hls' ? hlsRef : directVideoRef} 
+                        autoPlay 
+                        muted={isMuted}
+                        playsInline 
+                        className="w-full h-full object-cover pointer-events-none" 
+                      />
                     )
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <p className="text-gray-500 text-xs font-bold uppercase tracking-widest animate-pulse">Waiting for Stream...</p>
+                      <p className="text-gray-500 text-xs font-bold uppercase tracking-widest animate-pulse">
+                        {lang === 'en' ? 'Waiting for Stream...' : 'স্ট্রিমের জন্য অপেক্ষা...'}
+                      </p>
                     </div>
                   )}
                 </div>
