@@ -127,16 +127,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     }
   };
 
-  const DriveUploadButton = ({ id, onUrl }: { id: string, onUrl: (url: string) => void }) => (
-    <label className="shrink-0 cursor-pointer">
-      <div className={`p-2 rounded-xl border border-white/10 hover:bg-white/5 transition-all flex items-center gap-2 ${isUploading === id ? 'animate-pulse text-blue-400' : 'text-gray-400'}`}>
-        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 11h2.29l-4.29 4.29L6.71 13H9V7h4v6z"/></svg>
-        <span className="text-[10px] font-bold uppercase">{isUploading === id ? 'Uploading...' : 'Drive'}</span>
-      </div>
-      <input type="file" className="hidden" accept="image/*,video/*" onChange={(e) => { const file = e.target.files?.[0]; if (file) uploadFileToDrive(file, id, onUrl); }} />
-    </label>
-  );
-
   const currentContent = content[editLang];
 
   return (
@@ -183,13 +173,25 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                {currentContent.broadcastSource !== 'external' ? (
                  <div className="text-center">
                     <p className="text-gray-400 mb-6 text-sm">Quick broadcast using your device's built-in camera.</p>
+                    
+                    <div className="max-w-xl mx-auto mb-6 text-left space-y-4">
+                       <label className="text-[10px] font-bold text-gray-500 uppercase">Stream Title</label>
+                       <input 
+                          type="text" 
+                          value={currentContent.streamTitle || ''} 
+                          onChange={(e) => handleContentChange('streamTitle', e.target.value)}
+                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs"
+                          placeholder="e.g., Coding Session, Q&A, My Day..."
+                       />
+                    </div>
+
                     <div className="relative aspect-video max-w-xl mx-auto rounded-3xl overflow-hidden bg-black border border-white/10 mb-8 group">
                        <video 
                          ref={videoPreviewRef} 
                          autoPlay 
                          muted 
                          playsInline 
-                         controls // Full controls for Admin to test audio/video
+                         controls 
                          className="w-full h-full object-cover" 
                        />
                        {!currentContent.isBroadcasting && (
@@ -206,12 +208,21 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                  <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                        <div className="space-y-4">
-                          <h3 className="text-sm font-bold text-red-500 uppercase tracking-widest">External Links (YT/FB/HLS)</h3>
-                          <p className="text-xs text-gray-400 leading-relaxed">
-                            আপনি এখানে সরাসরি <strong>YouTube</strong>, <strong>Facebook</strong> ভিডিও লিংক অথবা <strong>OBS (HLS .m3u8)</strong> লিংক পেস্ট করতে পারেন। পোর্টফোলিও এটি অটোমেটিক প্লে করবে।
-                          </p>
+                          <h3 className="text-sm font-bold text-red-500 uppercase tracking-widest">Stream Configuration</h3>
+                          
                           <div className="space-y-2">
-                             <label className="text-[10px] font-bold text-gray-500 uppercase">Stream or Video URL</label>
+                             <label className="text-[10px] font-bold text-gray-500 uppercase">Stream Title</label>
+                             <input 
+                                type="text" 
+                                value={currentContent.streamTitle || ''} 
+                                onChange={(e) => handleContentChange('streamTitle', e.target.value)}
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs"
+                                placeholder="Custom Stream Title..."
+                             />
+                          </div>
+
+                          <div className="space-y-2">
+                             <label className="text-[10px] font-bold text-gray-500 uppercase">Stream or Video URL (YT/FB/HLS)</label>
                              <input 
                                 type="text" 
                                 value={currentContent.streamUrl || ''} 
@@ -223,7 +234,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                           <div className="p-4 rounded-2xl bg-blue-600/5 border border-blue-500/10">
                              <h4 className="text-[10px] font-bold uppercase mb-2 text-blue-400">Broadcaster Note:</h4>
                              <p className="text-[10px] text-gray-500 leading-relaxed">
-                               Visitors will see the stream with <strong>only a Mute/Unmute button</strong>. Play, Pause, and Seeking controls are disabled for them to ensure they follow the live broadcast as intended.
+                               Visitors will see your custom title and have access to a <strong>Live Chat</strong> sidebar while watching.
                              </p>
                           </div>
                        </div>
@@ -271,7 +282,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {Object.keys(currentContent).filter(k => !['isOnline', 'titleSize', 'isBroadcasting', 'broadcastSource', 'streamUrl'].includes(k)).map((key) => (
+              {Object.keys(currentContent).filter(k => !['isOnline', 'titleSize', 'isBroadcasting', 'broadcastSource', 'streamUrl', 'streamTitle'].includes(k)).map((key) => (
                 <div key={key} className="space-y-1">
                   <label className="text-[10px] uppercase text-gray-500 font-bold">{key.replace(/([A-Z])/g, ' $1')}</label>
                   <textarea 

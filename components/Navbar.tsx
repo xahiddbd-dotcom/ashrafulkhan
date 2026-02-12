@@ -2,6 +2,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Language, Content, SocialHighlight } from '../types';
 
+interface ChatMessage {
+  id: string;
+  user: string;
+  text: string;
+  time: string;
+  isMe?: boolean;
+}
+
 interface NavbarProps {
   lang: Language;
   setLang: (lang: Language) => void;
@@ -19,6 +27,40 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
   const [volume, setVolume] = useState(1);
   const videoRef = useRef<HTMLVideoElement>(null);
   const liveVideoRef = useRef<HTMLVideoElement>(null);
+
+  // Chat State
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    { id: '1', user: 'System', text: lang === 'en' ? 'Welcome to the live stream!' : 'লাইভ স্ট্রিমে স্বাগতম!', time: 'Now' },
+    { id: '2', user: 'Ashraful', text: lang === 'en' ? 'Starting the session soon. Stay tuned!' : 'সেশন শীঘ্রই শুরু হচ্ছে। সাথেই থাকুন!', time: '1m ago' }
+  ]);
+  const [newMessage, setNewMessage] = useState('');
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    if (isLiveViewerOpen) {
+      scrollToBottom();
+    }
+  }, [chatMessages, isLiveViewerOpen]);
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return;
+    
+    const msg: ChatMessage = {
+      id: Date.now().toString(),
+      user: lang === 'en' ? 'Visitor' : 'ভিজিটর',
+      text: newMessage,
+      time: 'Now',
+      isMe: true
+    };
+    
+    setChatMessages(prev => [...prev, msg]);
+    setNewMessage('');
+  };
 
   const toggleTheme = () => {
     if (isDark) {
@@ -160,6 +202,13 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
           cursor: pointer;
           border-radius: 50%;
         }
+        .chat-scroll::-webkit-scrollbar {
+          width: 4px;
+        }
+        .chat-scroll::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+        }
       `}</style>
       
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center px-4 md:px-8 py-2 bg-slate-950/70 backdrop-blur-2xl border-b border-white/5">
@@ -244,18 +293,27 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
 
       {/* LIVE VIEWER MODAL */}
       {isLiveViewerOpen && (
-        <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/95 backdrop-blur-3xl p-4 md:p-10 animate-in fade-in zoom-in-95 duration-300">
+        <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/95 backdrop-blur-3xl p-4 md:p-10 animate-in fade-in zoom-in-95 duration-300 overflow-hidden">
            <div className="absolute top-6 right-6 z-[260]">
              <button onClick={() => setIsLiveViewerOpen(false)} className="text-white/50 hover:text-white p-3 hover:bg-white/10 rounded-full transition-all">
                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
              </button>
            </div>
            
-           <div className="w-full max-w-5xl glass rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl relative flex flex-col md:flex-row aspect-video">
-              <div className="flex-1 bg-black relative group/player">
-                 <div className="absolute top-6 left-6 flex items-center gap-2 px-3 py-1 bg-red-600 rounded-full z-10 animate-live-blink">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                    <span className="text-[10px] font-black text-white uppercase tracking-tighter">LIVE BROADCAST</span>
+           <div className="w-full max-w-6xl glass rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl relative flex flex-col md:flex-row h-full max-h-[85vh]">
+              {/* VIDEO PLAYER SIDE */}
+              <div className="flex-1 bg-black relative group/player flex flex-col">
+                 {/* Top Status Overlays */}
+                 <div className="absolute top-6 left-6 flex flex-wrap gap-2 z-10">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-red-600 rounded-full animate-live-blink shadow-lg">
+                       <div className="w-2 h-2 bg-white rounded-full"></div>
+                       <span className="text-[10px] font-black text-white uppercase tracking-tighter">LIVE BROADCAST</span>
+                    </div>
+                    {content.streamTitle && (
+                      <div className="px-3 py-1.5 bg-blue-600/40 backdrop-blur-md rounded-full border border-blue-500/20 shadow-lg">
+                        <span className="text-[10px] font-black text-white uppercase tracking-tighter">{content.streamTitle}</span>
+                      </div>
+                    )}
                  </div>
                  
                  {/* VISITOR VOLUME CONTROLS OVERLAY */}
@@ -319,32 +377,65 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
                  </div>
               </div>
               
-              <div className="w-full md:w-80 bg-slate-900/50 p-8 flex flex-col border-l border-white/5">
-                 <div className="flex items-center gap-3 mb-8">
-                    <div className="w-10 h-10 rounded-full border-2 border-blue-500 p-0.5">
-                      <img src="https://via.placeholder.com/150" className="w-full h-full rounded-full object-cover" alt="Profile" />
+              {/* CHAT SIDEBAR SIDE */}
+              <div className="w-full md:w-96 bg-slate-900/50 flex flex-col border-l border-white/5 h-full overflow-hidden">
+                 {/* Profile & Info Header */}
+                 <div className="p-6 border-b border-white/5 bg-black/20 shrink-0">
+                    <div className="flex items-center gap-3 mb-2">
+                       <div className="w-10 h-10 rounded-full border-2 border-blue-500 p-0.5">
+                         <img src="https://via.placeholder.com/150" className="w-full h-full rounded-full object-cover" alt="Profile" />
+                       </div>
+                       <div className="flex-1 overflow-hidden">
+                         <h4 className="text-white font-bold text-sm truncate">{content.brandName}</h4>
+                         <p className="text-blue-400 text-[10px] font-black uppercase tracking-widest truncate">
+                           {streamType === 'youtube' ? 'YOUTUBE LIVE' : streamType === 'facebook' ? 'FACEBOOK LIVE' : 'INTERNAL BROADCAST'}
+                         </p>
+                       </div>
+                       <div className="px-2 py-1 bg-white/5 rounded text-[8px] font-bold text-gray-500 uppercase">Auto HD</div>
                     </div>
-                    <div>
-                      <h4 className="text-white font-bold text-sm tracking-tight">{content.brandName}</h4>
-                      <p className="text-blue-400 text-[10px] font-black uppercase tracking-widest">
-                        {streamType === 'youtube' ? 'YOUTUBE LIVE' : streamType === 'facebook' ? 'FACEBOOK LIVE' : 'OBS STREAM'}
-                      </p>
-                    </div>
+                    {content.streamTitle && (
+                      <h3 className="text-white text-xs font-black uppercase tracking-tight mt-2 line-clamp-1">{content.streamTitle}</h3>
+                    )}
                  </div>
                  
-                 <div className="flex-1 space-y-4">
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                       <p className="text-gray-400 text-xs font-medium italic">"Welcome to the workshop! Feel free to ask questions in the chat."</p>
-                    </div>
-                    <div className="flex items-center justify-between text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">
-                       <span>Quality</span>
-                       <span className="text-blue-500">Auto HD</span>
-                    </div>
+                 {/* Live Chat Messages Area */}
+                 <div className="flex-1 overflow-y-auto p-4 space-y-4 chat-scroll">
+                    <div className="text-[10px] text-center text-gray-600 uppercase font-black tracking-widest my-2">Live Chat Session</div>
+                    {chatMessages.map((msg) => (
+                      <div key={msg.id} className={`flex flex-col ${msg.isMe ? 'items-end' : 'items-start'}`}>
+                         <div className={`flex items-baseline gap-2 mb-1 ${msg.isMe ? 'flex-row-reverse' : ''}`}>
+                            <span className="text-[10px] font-black text-blue-500 uppercase tracking-tighter">{msg.user}</span>
+                            <span className="text-[8px] text-gray-600 font-bold">{msg.time}</span>
+                         </div>
+                         <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-xs leading-relaxed ${
+                           msg.isMe ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white/10 text-gray-300 rounded-tl-none border border-white/5'
+                         }`}>
+                           {msg.text}
+                         </div>
+                      </div>
+                    ))}
+                    <div ref={chatEndRef} />
                  </div>
                  
-                 <button className="mt-8 w-full bg-blue-600 py-3 rounded-xl text-white font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 active:scale-95">
-                    Live Chat
-                 </button>
+                 {/* Chat Input Area */}
+                 <form onSubmit={handleSendMessage} className="p-4 bg-black/40 border-t border-white/5 shrink-0">
+                    <div className="relative group/input">
+                       <input 
+                         type="text" 
+                         value={newMessage}
+                         onChange={(e) => setNewMessage(e.target.value)}
+                         placeholder={lang === 'en' ? "Say something..." : "কিছু বলুন..."}
+                         className="w-full bg-slate-950 border border-white/10 rounded-2xl pl-5 pr-12 py-4 text-xs text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all shadow-inner"
+                       />
+                       <button 
+                         type="submit"
+                         className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 text-blue-500 hover:text-white hover:bg-blue-600 rounded-xl transition-all disabled:opacity-30"
+                         disabled={!newMessage.trim()}
+                       >
+                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                       </button>
+                    </div>
+                 </form>
               </div>
            </div>
         </div>

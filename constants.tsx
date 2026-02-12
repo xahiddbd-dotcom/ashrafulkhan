@@ -20,7 +20,8 @@ export const TRANSLATIONS: Record<Language, Content> = {
     loading: "Thinking...",
     lifeStoryTitle: "My Personal Journey",
     socialTitle: "Connect With Me",
-    isOnline: true
+    isOnline: true,
+    streamTitle: "Exclusive Live Stream"
   },
   bn: {
     brandName: "আশরাফুল ইসলাম",
@@ -40,7 +41,8 @@ export const TRANSLATIONS: Record<Language, Content> = {
     loading: "ভাবছি...",
     lifeStoryTitle: "আমার ব্যক্তিগত গল্প",
     socialTitle: "যোগাযোগ করুন",
-    isOnline: true
+    isOnline: true,
+    streamTitle: "এক্সক্লুসিভ লাইভ স্ট্রিম"
   }
 };
 

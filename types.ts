@@ -30,6 +30,7 @@ export interface Content {
   isBroadcasting?: boolean;
   broadcastSource?: 'browser' | 'external'; // 'browser' for webcam, 'external' for OBS/RTMP
   streamUrl?: string; // HLS (.m3u8) or direct video URL for external streaming
+  streamTitle?: string; // Custom title for the live stream
 }
 
 export interface Project {
