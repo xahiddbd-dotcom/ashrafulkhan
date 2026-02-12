@@ -87,7 +87,7 @@ const App: React.FC = () => {
     localStorage.setItem('portfolio_hero_images', JSON.stringify(newHeroImages));
     localStorage.setItem('portfolio_social_links', JSON.stringify(newSocialLinks));
     
-    setIsAdminMode(false);
+    // Removed setIsAdminMode(false) to keep the panel open after saving
   };
 
   if (isAdminMode) {
