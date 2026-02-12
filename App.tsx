@@ -11,7 +11,6 @@ import LifeStory from './components/LifeStory';
 import SocialLinks from './components/SocialLinks';
 import Login from './components/Login';
 import AdminPanel from './components/AdminPanel';
-import HighlightsShelf from './components/HighlightsShelf';
 
 const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('en');
@@ -80,28 +79,28 @@ const App: React.FC = () => {
       <div className="fixed inset-0 opacity-[0.05] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-0"></div>
 
       <div className="relative z-10">
-        <Navbar lang={lang} setLang={setLang} content={content} />
+        <Navbar lang={lang} setLang={setLang} content={content} highlights={activeHighlights} />
 
-        <HighlightsShelf highlights={activeHighlights} />
+        <div className="pt-16"> {/* Add padding for fixed navbar */}
+          <Hero content={heroContent} />
 
-        <Hero content={heroContent} />
+          <Stats content={content} />
 
-        <Stats content={content} />
+          <LifeStory content={content} stories={activeStories} />
 
-        <LifeStory content={content} stories={activeStories} />
+          <Personalizer 
+            content={content} 
+            lang={lang} 
+            onUpdate={(bio) => {
+              setCustomBio(bio);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }} 
+          />
 
-        <Personalizer 
-          content={content} 
-          lang={lang} 
-          onUpdate={(bio) => {
-            setCustomBio(bio);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }} 
-        />
+          <ProjectsSection content={content} projects={activeProjects} />
 
-        <ProjectsSection content={content} projects={activeProjects} />
-
-        <SocialLinks content={content} />
+          <SocialLinks content={content} />
+        </div>
 
         <footer className="max-w-7xl mx-auto px-6 py-20 border-t border-white/5 text-center">
           <div className="text-blue-400 font-bold mb-4 tracking-tighter text-xl uppercase">
