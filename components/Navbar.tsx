@@ -46,6 +46,22 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
     }
   }, [chatMessages, isLiveViewerOpen]);
 
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval>;
+    if (activeStory && !isPaused) {
+      timer = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 100) {
+            handleNext();
+            return 100;
+          }
+          return prev + 1;
+        });
+      }, 50); 
+    }
+    return () => clearInterval(timer);
+  }, [activeStory, isPaused]);
+
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
@@ -78,8 +94,10 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
     const currentIndex = highlights.findIndex(h => h.id === activeStory?.id);
     if (currentIndex !== -1 && currentIndex < highlights.length - 1) {
       setActiveStory(highlights[currentIndex + 1]);
+      setProgress(0);
     } else {
       setActiveStory(null);
+      setProgress(0);
     }
   };
 
@@ -87,6 +105,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
     const currentIndex = highlights.findIndex(h => h.id === activeStory?.id);
     if (currentIndex > 0) {
       setActiveStory(highlights[currentIndex - 1]);
+      setProgress(0);
     } else {
       setProgress(0);
     }
@@ -95,8 +114,8 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
   const togglePlayPause = () => {
     setIsPaused(!isPaused);
     if (videoRef.current) {
-      if (isPaused) videoRef.current.play();
-      else videoRef.current.pause();
+      if (!isPaused) videoRef.current.pause();
+      else videoRef.current.play();
     }
   };
 
@@ -212,12 +231,34 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
       `}</style>
       
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-8 py-2 bg-slate-950/70 backdrop-blur-2xl border-b border-white/5 h-16">
-        {/* LEFT: BRAND */}
-        <div className="flex items-center gap-4 shrink-0">
-          <div className="flex flex-col">
-            <span className="text-xl md:text-2xl font-black tracking-tighter animate-brand-3d cursor-default">
-              {content.brandName}
-            </span>
+        {/* LEFT: BRAND & STORIES */}
+        <div className="flex items-center gap-3 md:gap-6 shrink-0 h-full overflow-hidden">
+          <span className="text-lg md:text-2xl font-black tracking-tighter animate-brand-3d cursor-default whitespace-nowrap">
+            {content.brandName}
+          </span>
+          
+          {/* STORIES TRIGGER BUBBLES */}
+          <div className="flex items-center gap-2 md:gap-3 px-3 border-l border-white/10 h-8">
+            {highlights.slice(0, 4).map((item) => (
+              <button 
+                key={item.id}
+                onClick={() => { setActiveStory(item); setProgress(0); }}
+                className="relative group p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 transition-all hover:scale-110 active:scale-95"
+              >
+                <div className="p-0.5 rounded-full bg-slate-950">
+                  <img 
+                    src={item.thumbnail} 
+                    className="w-8 h-8 md:w-9 md:h-9 rounded-full object-cover border border-slate-900" 
+                    alt="story" 
+                  />
+                </div>
+              </button>
+            ))}
+            {highlights.length > 4 && (
+              <button className="text-[10px] font-bold text-gray-500 hover:text-white transition-colors">
+                +{highlights.length - 4}
+              </button>
+            )}
           </div>
         </div>
 
@@ -420,30 +461,31 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
         </div>
       )}
 
+      {/* STORY VIEWER MODAL */}
       {activeStory && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 backdrop-blur-3xl animate-in fade-in duration-300">
-          <div className="absolute top-8 right-8 flex items-center gap-4 z-[230]">
-            <button onClick={togglePlayPause} className="text-white/50 hover:text-white p-3 hover:bg-white/10 rounded-full">
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/98 backdrop-blur-3xl animate-in fade-in duration-300">
+          <div className="absolute top-8 right-8 flex items-center gap-4 z-[330]">
+            <button onClick={togglePlayPause} className="text-white/50 hover:text-white p-3 hover:bg-white/10 rounded-full transition-all">
               {isPaused ? (
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" /></svg>
               ) : (
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1-1v4a1 1 0 102 0V8a1 1 0 00-1-1z" /></svg>
               )}
             </button>
-            <button onClick={() => setActiveStory(null)} className="text-white/50 hover:text-white p-3 hover:bg-white/10 rounded-full">
+            <button onClick={() => { setActiveStory(null); setProgress(0); }} className="text-white/50 hover:text-white p-3 hover:bg-white/10 rounded-full transition-all">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
 
-          <button onClick={handlePrev} className="absolute left-4 md:left-12 text-white/30 hover:text-white z-[230] p-4 hidden sm:block">
+          <button onClick={handlePrev} className="absolute left-4 md:left-12 text-white/30 hover:text-white z-[330] p-4 hidden sm:block">
             <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeWidth={2} /></svg>
           </button>
-          <button onClick={handleNext} className="absolute right-4 md:right-12 text-white/30 hover:text-white z-[230] p-4 hidden sm:block">
+          <button onClick={handleNext} className="absolute right-4 md:right-12 text-white/30 hover:text-white z-[330] p-4 hidden sm:block">
             <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" strokeWidth={2} /></svg>
           </button>
 
           <div className="relative w-full max-w-[420px] aspect-[9/16] bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl mx-4 border border-white/10">
-            <div className="absolute top-4 left-4 right-4 z-[220] flex gap-1.5 h-1 bg-white/10 rounded-full overflow-hidden">
+            <div className="absolute top-4 left-4 right-4 z-[320] flex gap-1.5 h-1 bg-white/10 rounded-full overflow-hidden">
               <div className="bg-white h-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
             </div>
             {activeStory.type === 'image' ? (
@@ -455,8 +497,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang, content, highlights }) =
               <div className="flex items-center gap-3 mb-3">
                 <img src={activeStory.thumbnail} className="w-8 h-8 rounded-full border border-white/20" alt="thumb" />
                 <span className="text-white font-bold text-sm tracking-tight">{content.brandName}</span>
-                <span className="text-white/40 text-[10px]">•</span>
-                <span className="text-white/40 text-[10px] font-black uppercase tracking-widest">{activeStory.timestamp}</span>
+                <span className="text-white/40 text-[10px] font-black uppercase tracking-widest ml-auto">{activeStory.timestamp}</span>
               </div>
               <p className="text-white text-lg font-medium leading-tight mb-2">{activeStory.caption}</p>
             </div>
